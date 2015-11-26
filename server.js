@@ -1,19 +1,13 @@
 var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 3000;
-var todos = [{id:1,
-              desc:"Meet mom for dinner",
-              completed: false},
-             {id:2,
-              desc:"company taxes",
-              completed: false},
-             {id:3,
-              desc:"tennis class",
-              completed: true}
-            ];
+var todos = [];
+var bodyParser = require('body-parser');
+var todoNextId = 1;
+app.use(bodyParser.json());
 
 app.get('/', function(req, res){
-   res.send('TODO API root page, todos length is now '+ todos.length); 
+   res.send('TODO API local root page, todos length is now '+ todos.length); 
 });
 
 app.get('/todos', function(req,res){
@@ -38,6 +32,15 @@ app.get('/todos/:id', function(req,res){
             res.status(404).send('No such id exists');
         }  
     
+});
+
+app.post('/todos', function(req, res){
+    var body = req.body;
+    body.id = todoNextId;
+    console.log('description ' + body.description);
+    todos[todoNextId-1] = body;
+    res.json(body);
+    todoNextId++;
 });
 
 app.listen(PORT, function(){

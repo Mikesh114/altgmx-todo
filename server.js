@@ -3,6 +3,7 @@ var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
 var bodyParser = require('body-parser');
+var _ = require('underscore');
 var todoNextId = 1;
 app.use(bodyParser.json());
 
@@ -14,6 +15,16 @@ app.get('/todos', function(req,res){
   res.json(todos);  
 });
 
+app.get('/todos/:id', function(req,res){
+   var todoId = parseInt(req.params.id, 10);
+    var matchedTodo = _.findWhere(todos, {id:todoId});
+    if (matchedTodo) {
+     res.json(matchedTodo);
+    } else
+        res.status(404).send();
+    
+});
+/*
 app.get('/todos/:id', function(req,res){
     todoId = req.params.id;
     notFound = true;
@@ -33,14 +44,23 @@ app.get('/todos/:id', function(req,res){
         }  
     
 });
+*/
+
 
 app.post('/todos', function(req, res){
-    var body = req.body;
+    var body = _.pick(req.body, 'description', 'completed');
+    if ((!_.isBoolean(body.completed) || !_.isString(body.description)) || (body.description.trim().length === 0))
+        { return res.status(400).send('bad request sent sending back 400');
+        } else {
+         
     body.id = todoNextId;
+    body.description = body.description.trim();
     console.log('description ' + body.description);
     todos[todoNextId-1] = body;
     res.json(body);
     todoNextId++;
+        }
+
 });
 
 app.listen(PORT, function(){

@@ -59,6 +59,11 @@ app.get('/todos/:id', function(req,res){
 
 app.post('/todos', function(req, res){
     var body = _.pick(req.body, 'description', 'completed');
+   // var todoId = parseInt(req.params.id,10);
+   // var matchedTodo = _.findWhere(todos,{id:todoId});
+    
+   // if (!matchedTodo) return res.status(404).send('something wrong in posting');
+    
     if ((!_.isBoolean(body.completed) || !_.isString(body.description)) || (body.description.trim().length === 0))
         { return res.status(400).send('bad request sent sending back 400');
         } else {
@@ -72,6 +77,30 @@ app.post('/todos', function(req, res){
         }
 
 });
+
+app.put('/todos/:id', function(req, res){
+    var body = _.pick(req.body, 'description', 'completed');
+    var todoId = parseInt(req.params.id,10);
+    var matchedTodo = _.findWhere(todos,{id:todoId});
+    var validAttributes = {};
+    
+    if (!matchedTodo) return res.status(404).send();
+    
+    if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+        validAttributes.completed = body.completed;
+        } else if (body.hasOwnProperty('completed')) {
+        return res.status(400).send('something went wrong in completed');
+        }
+    
+    if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length >0 ) {
+            validAttributes.description = body.description;
+        } else if (body.hasOwnProperty('description')) {
+                   res.status(400).send('something wrong in desc');
+                   }
+        _.extend(matchedTodo, validAttributes);
+    res.json(matchedTodo);
+
+}); //end PUT function
 
 app.listen(PORT, function(){
     console.log('express listening at port ' + PORT);

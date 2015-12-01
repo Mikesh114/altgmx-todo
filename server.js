@@ -24,6 +24,16 @@ app.get('/todos/:id', function(req,res){
         res.status(404).send();
     
 });
+
+app.delete('/todos/:id', function(req, res){
+   var todoId = parseInt(req.params.id,10);
+    var matchedTodo = _.findWhere(todos,{id:todoId});
+    if (matchedTodo) {
+        todos = _.without(todos, matchedTodo);
+    res.json(matchedTodo);
+    } else
+        res.status(404).send('no matched id');
+});
 /*
 app.get('/todos/:id', function(req,res){
     todoId = req.params.id;

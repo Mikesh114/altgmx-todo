@@ -11,6 +11,8 @@ app.get('/', function(req, res){
    res.send('TODO API local root page, todos length is now '+ todos.length); 
 });
 
+//GET homepage/todos?completed='false'$q='work'
+
 app.get('/todos', function(req,res){
     var queryParams = req.query;
     var filteredTodos = todos;
@@ -20,7 +22,14 @@ app.get('/todos', function(req,res){
     } else if (queryParams.hasOwnProperty('completed') && (queryParams.completed == 'false')){
         filteredTodos = _.where(filteredTodos, {completed:false});
     }
-
+// query for description
+        if (queryParams.hasOwnProperty('q') && (queryParams.q.length > 0)) {
+            filteredTodos = _.filter(filteredTodos, function(todo){
+                return todo.description.indexOf(queryParams.q.toLowerCase()) > -1;
+            }); 
+            }
+    //else res.status(400).send('string not found');
+            
   res.json(filteredTodos);  
 });
 

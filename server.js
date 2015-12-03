@@ -1,4 +1,5 @@
 var express = require('express');
+var db = require('./db.js');
 var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
@@ -77,11 +78,14 @@ app.get('/todos/:id', function(req,res){
 
 app.post('/todos', function(req, res){
     var body = _.pick(req.body, 'description', 'completed');
-   // var todoId = parseInt(req.params.id,10);
-   // var matchedTodo = _.findWhere(todos,{id:todoId});
+   // post to DB
+    db.todo.create(body).then(function(todo){
+        res.json(todo.toJSON());
+    }, function(e) {
+        res.status(400).json(e);
+    });
     
-   // if (!matchedTodo) return res.status(404).send('something wrong in posting');
-    
+    /*
     if ((!_.isBoolean(body.completed) || !_.isString(body.description)) || (body.description.trim().length === 0))
         { return res.status(400).send('bad request sent sending back 400');
         } else {
@@ -93,7 +97,7 @@ app.post('/todos', function(req, res){
     res.json(body);
     todoNextId++;
         }
-
+*/
 });
 
 app.put('/todos/:id', function(req, res){
@@ -120,6 +124,9 @@ app.put('/todos/:id', function(req, res){
 
 }); //end PUT function
 
-app.listen(PORT, function(){
+db.sequelize.sync().then(function (){
+    app.listen(PORT, function(){
     console.log('express listening at port ' + PORT);
 });
+});
+
